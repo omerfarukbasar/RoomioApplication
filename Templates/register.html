@@ -1,0 +1,47 @@
+<html>
+
+<body>
+<h1>Registration</h1>
+<form action="/registerAuth" method="POST">
+	<p>Username:</p>
+	<input type="text" name = "username" placeholder="username" required/>
+
+	<p>Password:</p>
+	<input type="password" name = "password" placeholder="password" required/>
+
+	<p>First name:</p>
+	<input type="text" name = "firstname" placeholder="firstname" required/>
+
+	<p>Last Name:</p>
+	<input type="text" name = "lastname" placeholder="lastname" required/>
+
+	<p>Date of Birth:</p>
+  	<input type="date" id="birthday" name="birthday" required/>
+
+    <p>Gender:</p>
+    <input type="radio" id="male" name="gender" value=1 required/>
+    <label for="male">Male</label>
+    <input type="radio" id="female" name="gender" value=2 required/>
+    <label for="female">Female</label>
+	<input type="radio" id="unknown" name="gender" value=0 required/>
+    <label for="unknown">Prefer Not to Say</label>
+
+	<p>Phone Number:</p>
+  	<input type="tel" id="phone" name="phone" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" required/>
+
+	<p>Email Address:</p>
+  	<input type="email" id="email" name="email" placeholder="you@example.com" required/>
+
+	<br><br>
+	<input type="submit" value = Register />
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+</form>
+
+<a href="/">Go back</a>
+
+</body>
+
+
+</html>
