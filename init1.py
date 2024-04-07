@@ -21,10 +21,42 @@ conn = pymysql.connect(host='localhost',
 def hello():
     return render_template('landing.html')
 
+#Define route for login
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
 # Define route for register
 @app.route('/register')
 def register():
     return render_template('register.html')
+
+# Authenticates the login
+@app.route('/loginAuth', methods=['GET', 'POST'])
+def loginAuth():
+    # grabs information from the forms
+    username = request.form['username']
+    password = request.form['password']
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+    # executes query
+    query = 'SELECT passwd FROM Users WHERE username = %s'
+    cursor.execute(query, (username))
+    # stores the results in a variable
+    data = cursor.fetchone()
+    cursor.close()
+    error = None
+    # Checks hashed password with one provided by login
+    if data and bcrypt.checkpw(str.encode(password), str.encode(data["passwd"])):
+        # creates a session for the user
+        # session is a built in
+        session['username'] = username
+        return redirect(url_for('home'))
+    else:
+        # returns an error message to the html page
+        error = 'Invalid login or username'
+        return render_template('login.html', error=error)
 
 # Authenticates the register
 @app.route('/registerAuth', methods=['GET', 'POST'])
@@ -46,9 +78,8 @@ def registerAuth():
     cursor.execute(query, (username))
     # stores the results in a variable
     data = cursor.fetchone()
-    # use fetchall() if you are expecting more than 1 data row
     error = None
-    if(data):
+    if data:
         # If the previous query returns data, then user exists
         error = "This user already exists"
         return render_template('register.html', error = error)
@@ -61,6 +92,16 @@ def registerAuth():
         cursor.close()
         return render_template('landing.html')
 
+# Takes user to homepage upon login
+@app.route('/home')
+def home():
+    user = session['username']
+    return render_template('home.html', username=user)
+
+@app.route('/logout')
+def logout():
+    session.pop('username')
+    return redirect('/')
 # Run the app on localhost port 5000
 # debug = True -> you don't have to restart flask
 # for changes to go through, TURN OFF FOR PRODUCTION
