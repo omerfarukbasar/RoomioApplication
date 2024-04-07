@@ -1,7 +1,9 @@
 # Import Flask Library
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 import pymysql.cursors
-import bcrypt
+
+# A library included within flask for hashing
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Initialize the app from Flask
 app = Flask(__name__)
@@ -48,7 +50,7 @@ def loginAuth():
     cursor.close()
     error = None
     # Checks hashed password with one provided by login
-    if data and bcrypt.checkpw(str.encode(password), str.encode(data["passwd"])):
+    if data and check_password_hash(data["passwd"], password):
         # creates a session for the user
         # session is a built in
         session['username'] = username
@@ -84,8 +86,8 @@ def registerAuth():
         error = "This user already exists"
         return render_template('register.html', error = error)
     else:
-        # Hash password using bycrypt module
-        passwd = bcrypt.hashpw(str.encode(passwd), bcrypt.gensalt(rounds=15))
+        # Hash password using werkzeug module
+        passwd = generate_password_hash(passwd)
         ins = 'INSERT INTO Users VALUES(%s, %s, %s, %s, %s, %s, %s, %s)'
         cursor.execute(ins, (username, first_name, last_name, DOB, gender, Phone, email, passwd))
         conn.commit()

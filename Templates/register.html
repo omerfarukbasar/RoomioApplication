@@ -16,15 +16,32 @@
 	<input type="text" name = "lastname" placeholder="lastname" required/>
 
 	<p>Date of Birth:</p>
-  	<input type="date" id="birthday" name="birthday" required/>
+  	<input type="date" id="birthday" name="birthday" min="1900-01-01"  required/>
+	<script>
+      const dateInput = document.getElementById('dateInput');
+      const minDateFor18 = new Date();
+      minDateFor18.setFullYear(minDateFor18.getFullYear() - 18);
+
+      birthday.max = formatDate(minDateFor18);
+
+      function formatDate(date) {
+         const year = date.getFullYear();
+         const month = String(date.getMonth() + 1).padStart(2, '0');
+         const day = String(date.getDate()).padStart(2, '0');
+         return `${year}-${month}-${day}`;
+      }
+   	</script>
 
     <p>Gender:</p>
-    <input type="radio" id="male" name="gender" value=1 required/>
-    <label for="male">Male</label>
-    <input type="radio" id="female" name="gender" value=2 required/>
-    <label for="female">Female</label>
-	<input type="radio" id="unknown" name="gender" value=0 required/>
-    <label for="unknown">Prefer Not to Say</label>
+
+
+	<select name="gender" id="gender" required/>
+		<option disabled selected value> -- select an option -- </option>
+    	<option value=1>Male</option>
+    	<option value=2>Female</option>
+    	<option value=0>Non-Binary</option>
+		<option value=9>Prefer Not to Disclose</option>
+  	</select>
 
 	<p>Phone Number:</p>
   	<input type="tel" id="phone" name="phone" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" required/>
