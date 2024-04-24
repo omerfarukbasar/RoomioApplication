@@ -1,0 +1,73 @@
+<html>
+<head>
+</head>
+<body>
+<h1>Browsing {{username}}'s Pets</h1>
+Register a new pet here:
+<form action="/addPet" method="POST">
+	<input type="text" name = "petName" placeholder="Pet Name" maxlength="50" required/>
+	<select name="petType" id="petType" required/>
+		<option disabled selected value> -- select an option -- </option>
+    	<option value="Cat">Cat</option>
+    	<option value="Dog">Dog</option>
+    	<option value="Rodent">Rodent</option>
+		<option value="Bird">Bird</option>
+  	</select>
+	<select name="petSize" id="petSize" required/>
+		<option disabled selected value> -- select an option -- </option>
+    	<option value="Small">Small</option>
+    	<option value="Medium">Medium</option>
+    	<option value="Large">Large</option>
+  	</select>
+	<input type="submit" value = AddPet />
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+</form>
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+Here are your registered pets:
+
+<table>
+	<th>Pet Name</th>
+	<th>Pet Type</th>
+	<th>Pet Size</th>
+
+{% for line in posts %}
+	<tr>
+		<td>{{line.PetName}}</td>
+		<td>{{line.PetType}}</td>
+		<td>{{line.PetSize}}</td>
+		<td>
+			<form action="/editPet" method="POST">
+				<input type="hidden" name="petName" value="{{ line.PetName }}" />
+				<input type="hidden" name="petType" value="{{ line.PetType }}" />
+				<input type="submit" value="Edit" class="edit-button" />
+			</form>
+		</td>
+		<td>
+			<form action="/deletePet" method="POST">
+				<input type="hidden" name="petName" value="{{ line.PetName }}" />
+				<input type="hidden" name="petType" value="{{ line.PetType }}" />
+				<input type="submit" value="Delete" class="delete-button" />
+			</form>
+		</td>
+	</tr>
+{% endfor %}
+</table>
+
+
+<br>
+<a href="/home">Go back to home page</a>
+<br>
+<a href="/logout">Logout</a>
+
+</body>
+
+
+</html>

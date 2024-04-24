@@ -4,16 +4,16 @@
 <h1>Registration</h1>
 <form action="/registerAuth" method="POST">
 	<p>Username:</p>
-	<input type="text" name = "username" placeholder="username" required/>
+	<input type="text" name = "username" placeholder="username" maxlength="20" required/>
 
 	<p>Password:</p>
-	<input type="password" name = "password" placeholder="password" required/>
+	<input type="password" name = "password" placeholder="password" maxlength="20" required/>
 
 	<p>First name:</p>
-	<input type="text" name = "firstname" placeholder="firstname" required/>
+	<input type="text" name = "firstname" placeholder="firstname" maxlength="20" required/>
 
 	<p>Last Name:</p>
-	<input type="text" name = "lastname" placeholder="lastname" required/>
+	<input type="text" name = "lastname" placeholder="lastname" maxlength="20" required/>
 
 	<p>Date of Birth:</p>
   	<input type="date" id="birthday" name="birthday" min="1900-01-01"  required/>
@@ -47,7 +47,7 @@
   	<input type="tel" id="phone" name="phone" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" required/>
 
 	<p>Email Address:</p>
-  	<input type="email" id="email" name="email" placeholder="you@example.com" required/>
+  	<input type="email" id="email" name="email" placeholder="you@example.com" maxlength="50" required/>
 
 	<br><br>
 	<input type="submit" value = Register />

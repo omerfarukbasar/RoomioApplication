@@ -100,6 +100,106 @@ def home():
     user = session['username']
     return render_template('home.html', username=user)
 
+@app.route('/pets',methods=['GET', 'POST'])
+def pets():
+    user = session['username']
+    cursor = conn.cursor()
+    query = 'SELECT PetName, PetType, PetSize FROM Pets WHERE username = %s '
+    cursor.execute(query, (user))
+    data = cursor.fetchall()
+    cursor.close()
+    return render_template('pets.html', username=user, posts=data)
+
+@app.route('/addPet', methods=['GET', 'POST'])
+def addPet():
+    # grabs information from the forms
+    user = session['username']
+    petName = request.form['petName']
+    petType = request.form['petType']
+    petSize = request.form['petSize']
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+    # executes query
+    query = 'SELECT * FROM Pets WHERE username = %s AND PetName = %s AND PetType =%s'
+    cursor.execute(query, (user,petName,petType))
+    # stores the results in a variable
+    data = cursor.fetchone()
+    error = None
+    if data:
+        # If the previous query returns data, then user exists
+        error = "A pet with this name and type already exists"
+        query = 'SELECT PetName, PetType, PetSize FROM Pets WHERE username = %s '
+        cursor.execute(query, (user))
+        data = cursor.fetchall()
+        cursor.close()
+        return render_template('pets.html', username=user, posts=data, error = error)
+    else:
+        ins = 'INSERT INTO Pets VALUES(%s, %s, %s, %s)'
+        cursor.execute(ins, (petName,petType,petSize,user))
+        conn.commit()
+        cursor.close()
+        return redirect(url_for('pets'))
+@app.route('/editPet', methods=['GET', 'POST'])
+def editPet():
+    # grabs information from the forms
+    user = session['username']
+    petName = request.form['petName']
+    petType = request.form['petType']
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+    # executes query
+    query = 'SELECT * FROM Pets WHERE username = %s AND PetName = %s AND PetType =%s'
+    cursor.execute(query, (user,petName,petType))
+    # stores the results in a variable
+    data = cursor.fetchall()
+    cursor.close()
+    return render_template('editpet.html', username=user, posts=data)
+
+@app.route('/changePet', methods=['GET', 'POST'])
+def changePet():
+    # grabs information from the forms
+    user = session['username']
+    newPetName = request.form['newPetName']
+    newPetType = request.form['newPetType']
+    newPetSize = request.form['newPetSize']
+    oldPetName = request.form['oldPetName']
+    oldPetType = request.form['oldPetType']
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+    # executes query
+    query = 'SELECT * FROM Pets WHERE username = %s AND PetName = %s AND PetType =%s'
+    cursor.execute(query, (user,newPetName,newPetType))
+    # stores the results in a variable
+    data = cursor.fetchone()
+    error = None
+    if data:
+        # If the previous query returns data, then user exists
+        error = "A pet with this name and type already exists"
+        query = 'SELECT * FROM Pets WHERE username = %s AND PetName = %s AND PetType =%s'
+        cursor.execute(query, (user, oldPetName, oldPetType))
+        data = cursor.fetchall()
+        cursor.close()
+        return render_template('editpet.html', username=user, posts=data, error = error)
+    else:
+        ins = 'UPDATE Pets SET PetName = %s, PetType = %s, PetSize = %s WHERE PetName = %s AND PetType = %s AND username = %s'
+        cursor.execute(ins, (newPetName,newPetType,newPetSize,oldPetName,oldPetType,user))
+        conn.commit()
+        cursor.close()
+        return redirect(url_for('pets'))
+@app.route('/deletePet', methods=['GET', 'POST'])
+def deletePet():
+    username = session['username']
+    cursor = conn.cursor()
+    petName = request.form['petName']
+    petType = request.form['petType']
+    query = 'DELETE FROM Pets WHERE username = %s AND PetName = %s AND PetType = %s'
+    cursor.execute(query, (username, petName, petType))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('pets'))
 @app.route('/logout')
 def logout():
     session.pop('username')
