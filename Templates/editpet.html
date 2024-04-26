@@ -14,6 +14,7 @@ Edit your pet's information here:
 <form action="/changePet" method="POST">
     <input type="hidden" name="oldPetName" value="{{ posts[0].PetName }}" />
     <input type="hidden" name="oldPetType" value="{{ posts[0].PetType }}" />
+    <input type="hidden" name="oldPetSize" value="{{ posts[0].PetSize }}" />
     <table>
 	<th>Pet Name</th>
 	<th>Pet Type</th>

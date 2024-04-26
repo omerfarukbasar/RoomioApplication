@@ -1,0 +1,66 @@
+<html>
+<head>
+</head>
+<body>
+<h1>Viewing Listings</h1>
+<form action="/post" method="POST">
+    Search for units from a specific apartment building<br>
+	<input type="text" name = "company" placeholder="company" maxlength="20" required/>
+    <input type="text" name = "building" placeholder="building" maxlength="20" required/>
+	<input type="submit" value = Search />
+</form>
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+Default listings:
+
+<table>
+	<th>Rental ID</th>
+	<th>Company</th>
+	<th>Building</th>
+	<th>Unit Number</th>
+	<th>Monthly Rent</th>
+	<th>Sq Footage</th>
+	<th>Move In Date</th>
+	<th>Bed&Bath</th>
+	<th>Your Conflicting Pets?</th>
+
+
+{% for line in posts %}
+	<tr>
+		<td>{{line.UnitRentID}}</td>
+		<td>{{line.CompanyName}}</td>
+		<td>{{line.BuildingName}}</td>
+		<td>{{line.unitNumber}}</td>
+		<td>{{line.MonthlyRent}}</td>
+		<td>{{line.squareFootage}}</td>
+		<td>{{line.AvailableDateForMoveIn}}</td>
+		<td>{{line.BedroomCount}}bed {{line.BathroomCount}}bath</td>
+		<td>
+        {% set conflicts = [] %}
+        {% set policy_list = line.PetPolicies.split(';') %}
+        {% set owned_pets_list = yeet.OwnedPets.split(';') if yeet else [] %}
+        {% for petsample in owned_pets_list %}
+            {% if petsample not in policy_list %}
+                        {% set _ = conflicts.append(petsample[0:-1]) %}
+			{% endif %}
+        {% endfor %}
+        {{ 'No Conflicts' if conflicts|length == 0 else 'Conflicts: ' ~ conflicts }}
+    </td>
+	</tr>
+{% endfor %}
+</table>
+
+<br>
+<a href="/home">Go back to home page</a>
+<br>
+<a href="/logout">Logout</a>
+
+</body>
+
+
+</html>

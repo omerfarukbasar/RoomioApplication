@@ -99,6 +99,18 @@ def registerAuth():
 def home():
     user = session['username']
     return render_template('home.html', username=user)
+@app.route('/view_listings',methods=['GET', 'POST'])
+def viewListings():
+    user = session['username']
+    cursor = conn.cursor()
+    query = "SELECT UnitRentID, CompanyName, BuildingName, unitNumber,MonthlyRent,squareFootage,AvailableDateForMoveIn, GROUP_CONCAT(DISTINCT CONCAT(PetSize,PetType,isAllowed) ORDER BY PetType, PetSize SEPARATOR ';') AS PetPolicies,BedroomCount,BathroomCount FROM ApartmentUnit NATURAL JOIN PetPolicy NATURAL JOIN bathcounter NATURAL JOIN bedcounter GROUP BY UnitRentID ORDER BY UnitRentID;"
+    cursor.execute(query)
+    data = cursor.fetchall()
+    query2 = "SELECT username,GROUP_CONCAT(DISTINCT CONCAT(PetSize,PetType,1) ORDER BY PetType, PetSize SEPARATOR ';') AS OwnedPets FROM Users LEFT JOIN Pets USING(username) WHERE username = %s"
+    cursor.execute(query2,(user))
+    data2 = cursor.fetchone()
+    cursor.close()
+    return render_template('listingmain.html', username=user, posts=data, yeet = data2)
 
 @app.route('/pets',methods=['GET', 'POST'])
 def pets():
@@ -166,29 +178,50 @@ def changePet():
     newPetSize = request.form['newPetSize']
     oldPetName = request.form['oldPetName']
     oldPetType = request.form['oldPetType']
+    oldPetSize = request.form['oldPetSize']
 
     # cursor used to send queries
     cursor = conn.cursor()
-    # executes query
-    query = 'SELECT * FROM Pets WHERE username = %s AND PetName = %s AND PetType =%s'
-    cursor.execute(query, (user,newPetName,newPetType))
-    # stores the results in a variable
-    data = cursor.fetchone()
-    error = None
-    if data:
-        # If the previous query returns data, then user exists
-        error = "A pet with this name and type already exists"
-        query = 'SELECT * FROM Pets WHERE username = %s AND PetName = %s AND PetType =%s'
-        cursor.execute(query, (user, oldPetName, oldPetType))
-        data = cursor.fetchall()
-        cursor.close()
-        return render_template('editpet.html', username=user, posts=data, error = error)
+
+    # If pet size and type haven't changed
+    if (newPetName == oldPetName and newPetType == oldPetType):
+        # If no change
+        if(newPetSize == oldPetSize):
+            error = "No values were changed"
+            query = 'SELECT * FROM Pets WHERE username = %s AND PetName = %s AND PetType =%s'
+            cursor.execute(query, (user, oldPetName, oldPetType))
+            data = cursor.fetchall()
+            cursor.close()
+            return render_template('editpet.html', username=user, posts=data, error=error)
+        # Change pet's size
+        else:
+            ins = 'UPDATE Pets SET PetSize = %s WHERE PetName = %s AND PetType = %s AND username = %s'
+            cursor.execute(ins, (newPetSize, oldPetName, oldPetType, user))
+            conn.commit()
+            cursor.close()
+            return redirect(url_for('pets'))
+    # If pet size and type are different
     else:
-        ins = 'UPDATE Pets SET PetName = %s, PetType = %s, PetSize = %s WHERE PetName = %s AND PetType = %s AND username = %s'
-        cursor.execute(ins, (newPetName,newPetType,newPetSize,oldPetName,oldPetType,user))
-        conn.commit()
-        cursor.close()
-        return redirect(url_for('pets'))
+        # executes query
+        query = 'SELECT * FROM Pets WHERE username = %s AND PetName = %s AND PetType =%s'
+        cursor.execute(query, (user,newPetName,newPetType))
+        # stores the results in a variable
+        data = cursor.fetchone()
+        error = None
+        if data:
+            # If the previous query returns data, then user exists
+            error = "A pet with this name and type already exists"
+            query = 'SELECT * FROM Pets WHERE username = %s AND PetName = %s AND PetType =%s'
+            cursor.execute(query, (user, oldPetName, oldPetType))
+            data = cursor.fetchall()
+            cursor.close()
+            return render_template('editpet.html', username=user, posts=data, error = error)
+        else:
+            ins = 'UPDATE Pets SET PetName = %s, PetType = %s, PetSize = %s WHERE PetName = %s AND PetType = %s AND username = %s'
+            cursor.execute(ins, (newPetName,newPetType,newPetSize,oldPetName,oldPetType,user))
+            conn.commit()
+            cursor.close()
+            return redirect(url_for('pets'))
 @app.route('/deletePet', methods=['GET', 'POST'])
 def deletePet():
     username = session['username']
