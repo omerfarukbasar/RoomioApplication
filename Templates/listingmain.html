@@ -19,6 +19,7 @@
 Default listings:
 
 <table>
+	<th>View Unit</th>
 	<th>Rental ID</th>
 	<th>Company</th>
 	<th>Building</th>
@@ -32,6 +33,14 @@ Default listings:
 
 {% for line in posts %}
 	<tr>
+		<td>
+			<form action="/viewUnit" method="POST">
+				<input type="hidden" name="unitID" value="{{ line.UnitRentID }}" />
+				<input type="hidden" name="comp" value="{{ line.CompanyName }}" />
+				<input type="hidden" name="build" value="{{ line.BuildingName }}" />
+				<input type="submit" value="View" class="edit-button" />
+			</form>
+		</td>
 		<td>{{line.UnitRentID}}</td>
 		<td>{{line.CompanyName}}</td>
 		<td>{{line.BuildingName}}</td>

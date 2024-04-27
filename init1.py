@@ -1,6 +1,7 @@
 # Import Flask Library
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 import pymysql.cursors
+from werkzeug.exceptions import BadRequestKeyError
 
 # A library included within flask for hashing
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -111,7 +112,96 @@ def viewListings():
     data2 = cursor.fetchone()
     cursor.close()
     return render_template('listingmain.html', username=user, posts=data, yeet = data2)
+@app.route('/viewUnit', methods=['GET', 'POST'])
+def viewUnit():
+    # grabs information from the forms
+    user = session['username']
+    try:
+        unit = request.form['unitID']
+        comp = request.form['comp']
+        build = request.form['build']
+        session['unitID'] = unit
+        session['comp'] = comp
+        session['build'] = build
+        session['error'] = None
+        error = None
+    except:
+        unit = session['unitID']
+        comp = session['comp']
+        build = session['build']
+        error = session['error']
 
+    # cursor used to send queries
+    cursor = conn.cursor()
+
+    # unit data
+    query = 'SELECT * FROM ApartmentUnit NATURAL JOIN ApartmentBuilding NATURAL JOIN bedcounter NATURAL JOIN bathcounter WHERE UnitRentID =%s'
+    cursor.execute(query, (unit))
+    # stores the results in a variable
+    data = cursor.fetchall()
+
+    # room data
+    query = 'SELECT name,squareFootage,description FROM Rooms WHERE UnitRentID =%s'
+    cursor.execute(query, (unit))
+    rooms = cursor.fetchall()
+
+    # unit amenities
+    query = 'SELECT aType,Description FROM AmenitiesIn NATURAL JOIN Amenities WHERE UnitRentID =%s'
+    cursor.execute(query, (unit))
+    uamen = cursor.fetchall()
+
+    # building amenities
+    query = 'SELECT aType,Description, Fee, waitingList FROM Provides NATURAL JOIN Amenities WHERE CompanyName=%s AND BuildingName=%s'
+    cursor.execute(query, (comp,build))
+    bamen = cursor.fetchall()
+
+    # interest in unit
+    query = 'SELECT username,RoommateCnt,MoveInDate FROM Interests WHERE UnitRentID = %s ORDER BY MoveInDate'
+    cursor.execute(query, (unit))
+    inter = cursor.fetchall()
+
+    cursor.close()
+    return render_template('unitview.html', username=user, posts=data, posts1=rooms,posts2=uamen,posts3=bamen,posts4=inter, error = error)
+@app.route('/makeInterest', methods=['GET', 'POST'])
+def makeInterest():
+    # grabs information from the forms
+    user = session['username']
+    unit = request.form['unitID']
+    roommates = request.form['roomy']
+    move = request.form['movein']
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+    # executes query
+    query = 'SELECT * FROM Interests WHERE username = %s AND UnitRentID = %s'
+    cursor.execute(query, (user, unit))
+    # stores the results in a variable
+    data = cursor.fetchone()
+    error = None
+    if data:
+        # If the previous query returns data, then user exists
+        error = "You have already stated your interest for this unit"
+        session['error'] = error
+        cursor.close()
+        return redirect(url_for('viewUnit'))
+    else:
+        ins = 'INSERT INTO Interests VALUES(%s, %s, %s, %s)'
+        cursor.execute(ins, (user, unit, roommates, move))
+        conn.commit()
+        cursor.close()
+        return redirect(url_for('viewUnit'))
+
+@app.route('/deleteInterest', methods=['GET', 'POST'])
+def deleteInterest():
+    username = session['username']
+    unit = request.form['unit1']
+    cursor = conn.cursor()
+    query = 'DELETE FROM Interests WHERE username = %s AND UnitRentID = %s'
+    cursor.execute(query, (username, unit))
+    conn.commit()
+    cursor.close()
+    session['error'] = None
+    return redirect(url_for('viewUnit'))
 @app.route('/pets',methods=['GET', 'POST'])
 def pets():
     user = session['username']

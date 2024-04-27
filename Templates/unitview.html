@@ -1,0 +1,136 @@
+<html>
+<head>
+</head>
+<body>
+<h1>Viewing Unit</h1>
+
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+
+<table>
+	<h3>Unit Info</h3>
+	<th>Rental ID</th>
+	<th>Unit Number</th>
+	<th>Monthly Rent</th>
+	<th>Sq Footage</th>
+	<th>Move In Date</th>
+	<th>Bed&Bath</th>
+
+{% for line in posts %}
+<tr>
+	<td>{{line.UnitRentID}}</td>
+	<td>{{line.unitNumber}}</td>
+	<td>{{line.MonthlyRent}}</td>
+	<td>{{line.squareFootage}}</td>
+	<td>{{line.AvailableDateForMoveIn}}</td>
+	<td>{{line.BedroomCount}}bed {{line.BathroomCount}}bath</td></tr>
+{% endfor %}
+</table>
+<br>
+<table>
+	<h3>Unit Rooms</h3>
+	<th>Room Name</th>
+	<th>Square Footage</th>
+	<th>Description</th>
+
+{% for line in posts1 %}
+<tr>
+	<td>{{line.name}}</td>
+	<td>{{line.squareFootage}}</td>
+	<td>{{line.description}}</td></tr>
+{% endfor %}
+
+</table>
+<br>
+<table>
+	<h3>Unit Amenities</h3>
+	<th>Type</th>
+	<th>Description</th>
+
+{% for line in posts2 %}
+<tr>
+	<td>{{line.aType}}</td>
+	<td>{{line.description}}</td></tr>
+{% endfor %}
+
+</table>
+<br>
+<table>
+	<h3>Building Info</h3>
+	<th>Company Name</th>
+	<th>Building Name</th>
+	<th>Year Built</th>
+	<th>Address</th>
+<tr>
+	<td>{{posts[0].CompanyName}}</td>
+	<td>{{posts[0].BuildingName}}</td>
+	<td>{{posts[0].YearBuilt}}</td>
+	<td>{{posts[0].AddrNum}} {{posts[0].AddrStreet}}, {{posts[0].AddrCity}}, {{posts[0].AddrState}} {{posts[0].AddrZipCode}}</td>
+</tr>
+</table>
+<br>
+<table>
+	<h3>Building Amenities</h3>
+	<th>Type</th>
+	<th>Description</th>
+	<th>Fee</th>
+	<th>Waiting List</th>
+
+{% for line in posts3 %}
+<tr>
+	<td>{{line.aType}}</td>
+	<td>{{line.description}}</td>
+	<td>{{line.Fee}}</td>
+	<td>{{line.waitingList}}</td>
+</tr>
+{% endfor %}
+
+</table>
+<br>
+<h3>Users Interested In This Unit</h3>
+<form action="/makeInterest" method="POST">
+    Add your roommate count and move in date to display interest<br>
+	<input type="hidden" name="unitID" value="{{ posts[0].UnitRentID }}" />
+	<input type="number" name="roomy" id="roomy" min="1" max="9" required/>
+    <input type="date" id="movein" name="movein" min="{{posts[0].AvailableDateForMoveIn}}"  required/>
+	<input type="submit" value = Create />
+</form>
+{% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}</p>
+{% endif %}
+<form action="/deleteInterest" method="POST">
+<table>
+	<th>Username</th>
+	<th>Roommate Count</th>
+	<th>Move In Date</th>
+
+{% for line in posts4 %}
+<tr>
+	<td>{{line.username}}</td>
+	<td>{{line.RoommateCnt}}</td>
+	<td>{{line.MoveInDate}}</td>
+	{% if line.username == username %}
+		<input type="hidden" name="unit1" value="{{ posts[0].UnitRentID }}" />
+		<td><input type="submit" value = Delete /><td>
+	{% endif %}
+</tr>
+{% endfor %}
+
+</table>
+</form>
+<br>
+<a href="/view_listings">Go back to listings</a>
+<br>
+<a href="/home">Go back to home page</a>
+<br>
+<a href="/logout">Logout</a>
+
+</body>
+
+
+</html>

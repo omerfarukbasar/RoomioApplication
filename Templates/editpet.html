@@ -27,6 +27,7 @@ Edit your pet's information here:
         <option value="Dog" {% if posts[0].PetType =='Dog' %}selected{% endif %}>Dog</option>
         <option value="Rodent" {% if posts[0].PetType =='Rodent' %}selected{% endif %}>Rodent</option>
         <option value="Bird" {% if posts[0].PetType =='Bird' %}selected{% endif %}>Bird</option>
+        <option value="Turtle" {% if posts[0].PetType =='Turtle' %}selected{% endif %}>Turtle</option>
     </select></td>
     <td><select name="newPetSize" id="newPetSize" required>
         <option disabled value> -- select an option -- </option>
