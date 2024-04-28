@@ -1,0 +1,41 @@
+<html>
+<head>
+</head>
+<body>
+<h1>Viewing Favorites</h1>
+
+<style type="text/css">
+	table, th, td{border: 1px solid black;}
+</style>
+
+<table>
+	<th>View Unit</th>
+	<th>Rental ID</th>
+	<th>Company</th>
+	<th>Building</th>
+	<th>Unit</th>
+	{% for line in posts %}
+		<tr>
+			<td>
+				<form action="/viewUnit" method="POST">
+					<input type="hidden" name="unitID" value="{{ line.UnitRentID }}" />
+					<input type="hidden" name="comp" value="{{ line.CompanyName }}" />
+					<input type="hidden" name="build" value="{{ line.BuildingName }}" />
+					<input type="hidden" name="origin" value="Favorites" />
+					<input type="submit" value="View" class="edit-button" />
+				</form>
+			</td>
+			<td>{{line.UnitRentID}}</td>
+			<td>{{line.CompanyName}}</td>
+			<td>{{line.BuildingName}}</td>
+			<td>{{line.unitNumber}}</td>
+		</tr>
+	{% endfor %}
+</table>
+<br>
+<a href="/home">Go back to home page</a>
+<br>
+<a href="/logout">Logout</a>
+
+</body>
+</html>

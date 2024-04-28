@@ -143,7 +143,25 @@
 </form>
 <br>
 
-<a href="/searchListings">Go back to listings</a>
+{% if fav == None %}
+	<form action="/addFavorite" method="POST">
+		<input type="hidden" name="unitID" value="{{ posts.UnitRentID }}" />
+		<input type="submit" value = "Add unit to favorites" />
+	</form>
+{% else %}
+	<form action="/deleteFavorite" method="POST">
+		<input type="hidden" name="unitID" value="{{ posts.UnitRentID }}" />
+		<input type="submit" value = "Remove unit from favorites" />
+	</form>
+{% endif %}
+
+{% if origin == 'Listing' %}
+	<a href="/searchListings">Go back to listings</a>
+{% else %}
+	<a href="/viewFavorites">Go back to favorites</a>
+{% endif %}
+
+
 <br>
 <a href="/home">Go back to home page</a>
 <br>

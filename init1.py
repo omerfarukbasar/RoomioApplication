@@ -100,6 +100,7 @@ def home():
     session['build'] = None
     session['PetName'] = None
     session['PetType'] = None
+    session['origin'] = None
     return render_template('home.html', username=user)
 
 # Search page for finding listings
@@ -163,10 +164,12 @@ def viewUnit():
         unit = request.form['unitID']
         comp = request.form['comp']
         build = request.form['build']
+        origin = request.form['origin']
         session['unitID'] = unit
         session['comp'] = comp
         session['build'] = build
         session['error'] = None
+        session['origin'] = origin
         error = None
     # Returning from error
     except:
@@ -174,6 +177,7 @@ def viewUnit():
         comp = session['comp']
         build = session['build']
         error = session['error']
+        origin = session['origin']
 
     # cursor used to send queries
     cursor = conn.cursor()
@@ -203,13 +207,18 @@ def viewUnit():
     cursor.execute(query, (unit))
     inter = cursor.fetchall()
 
-    # Interest in unit
+    # Building pet policy
     query = 'SELECT PetType,PetSize,isAllowed,RegistrationFee,MonthlyFee FROM PetPolicy WHERE CompanyName=%s AND BuildingName=%s ORDER BY PetType,PetSize'
     cursor.execute(query, (comp,build))
     policy = cursor.fetchall()
 
+    # Check for favorite
+    query = 'SELECT * From Favorites WHERE UnitRentID=%s AND username = %s'
+    cursor.execute(query, (unit, user))
+    fav = cursor.fetchone()
+
     cursor.close()
-    return render_template('unitview.html', username=user, posts=data, posts1=rooms,posts2=uamen,posts3=bamen,posts4=inter, posts5=policy, error = error)
+    return render_template('unitview.html', username=user, posts=data, posts1=rooms,posts2=uamen,posts3=bamen,posts4=inter, posts5=policy, fav=fav, origin=origin, error = error)
 @app.route('/makeInterest', methods=['GET', 'POST'])
 def makeInterest():
     # Get data
@@ -251,6 +260,48 @@ def deleteInterest():
     cursor.close()
     session['error'] = None
     return redirect(url_for('viewUnit'))
+
+@app.route('/addFavorite', methods=['GET', 'POST'])
+def addFavorite():
+    # Get data
+    username = session['username']
+    unit = request.form['unitID']
+
+    # Add unit to user's favorites
+    cursor = conn.cursor()
+    query = "INSERT INTO Favorites (username, UnitRentID) VALUES (%s, %s)"
+    cursor.execute(query, (username, unit))
+    conn.commit()
+    cursor.close()
+    session['error'] = None
+    return redirect(url_for('viewUnit'))
+
+@app.route('/deleteFavorite', methods=['GET', 'POST'])
+def deleteFavorite():
+    # Get data
+    username = session['username']
+    unit = request.form['unitID']
+    # Delete the specific entry
+    cursor = conn.cursor()
+    query = 'DELETE FROM Favorites WHERE username = %s AND UnitRentID = %s'
+    cursor.execute(query, (username, unit))
+    conn.commit()
+    cursor.close()
+    session['error'] = None
+    return redirect(url_for('viewUnit'))
+
+@app.route('/viewFavorites',methods=['GET', 'POST'])
+def viewFavorites():
+    # Get data
+    user = session['username']
+
+    # Get list of user's favorites
+    cursor = conn.cursor()
+    query = "SELECT UnitRentID, CompanyName, BuildingName, unitNumber FROM Favorites NATURAL JOIN ApartmentUnit"
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+    return render_template('favorites.html', username=user, posts=data)
 
 # Shows the user's pets
 @app.route('/pets',methods=['GET', 'POST'])
@@ -394,6 +445,7 @@ def logout():
     session.pop('build')
     session.pop('comp')
     session.pop('unitID')
+    session.pop('origin')
     return redirect('/')
 
 # Run the app on localhost port 5000
