@@ -2,57 +2,51 @@
 <head>
 </head>
 <body>
+
 <h1>Editing {{username}}'s Pet</h1>
 Edit your pet's information here:
 
 <style type="text/css">
-	table, th, td{
-		border: 1px solid black;
-	}
+	table, th, td{border: 1px solid black;}
 </style>
 
 <form action="/changePet" method="POST">
-    <input type="hidden" name="oldPetName" value="{{ posts[0].PetName }}" />
-    <input type="hidden" name="oldPetType" value="{{ posts[0].PetType }}" />
-    <input type="hidden" name="oldPetSize" value="{{ posts[0].PetSize }}" />
+    <input type="hidden" name="oldPetName" value="{{ pet.PetName }}" />
+    <input type="hidden" name="oldPetType" value="{{ pet.PetType }}" />
+    <input type="hidden" name="oldPetSize" value="{{ pet.PetSize }}" />
+
     <table>
-	<th>Pet Name</th>
-	<th>Pet Type</th>
-	<th>Pet Size</th>
-    <tr>
-    <td><input type="text" name="newPetName" placeholder="New Pet Name" value="{{ posts[0].PetName }}" maxlength="50" required/></td>
-    <td><select name="newPetType" id="newPetType" required>
-        <option disabled value> -- select an option -- </option>
-        <option value="Cat" {% if posts[0].PetType =='Cat' %}selected{% endif %}>Cat</option>
-        <option value="Dog" {% if posts[0].PetType =='Dog' %}selected{% endif %}>Dog</option>
-        <option value="Rodent" {% if posts[0].PetType =='Rodent' %}selected{% endif %}>Rodent</option>
-        <option value="Bird" {% if posts[0].PetType =='Bird' %}selected{% endif %}>Bird</option>
-        <option value="Turtle" {% if posts[0].PetType =='Turtle' %}selected{% endif %}>Turtle</option>
-    </select></td>
-    <td><select name="newPetSize" id="newPetSize" required>
-        <option disabled value> -- select an option -- </option>
-        <option value="Small" {% if posts[0].PetSize =='Small' %}selected{% endif %}>Small</option>
-        <option value="Medium" {% if posts[0].PetSize =='Medium' %}selected{% endif %}>Medium</option>
-        <option value="Large" {% if posts[0].PetSize =='Large' %}selected{% endif %}>Large</option>
-    </select></td>
+	    <th>Pet Name</th>
+	    <th>Pet Type</th>
+	    <th>Pet Size</th>
 
-    <td><input type="submit" value="Update Pet" />
+        <tr>
+            <td><input type="text" name="newPetName" placeholder="New Pet Name" value="{{ pet.PetName }}" maxlength="50" required/></td>
+            <td><select name="newPetType" id="newPetType" required>
+                <option disabled value> -- select an option -- </option>
+                <option value="Cat" {% if pet.PetType =='Cat' %}selected{% endif %}>Cat</option>
+                <option value="Dog" {% if pet.PetType =='Dog' %}selected{% endif %}>Dog</option>
+                <option value="Rodent" {% if pet.PetType =='Rodent' %}selected{% endif %}>Rodent</option>
+                <option value="Bird" {% if pet.PetType =='Bird' %}selected{% endif %}>Bird</option>
+                <option value="Turtle" {% if pet.PetType =='Turtle' %}selected{% endif %}>Turtle</option>
+            </select></td>
+            <td><select name="newPetSize" id="newPetSize" required>
+                <option disabled value> -- select an option -- </option>
+                <option value="Small" {% if pet.PetSize =='Small' %}selected{% endif %}>Small</option>
+                <option value="Medium" {% if pet.PetSize =='Medium' %}selected{% endif %}>Medium</option>
+                <option value="Large" {% if pet.PetSize =='Large' %}selected{% endif %}>Large</option>
+            </select></td>
 
-     </td>
-	</tr>
-
+            <td><input type="submit" value="Update Pet"/></td>
+	    </tr>
     </table>
     {% if error %}
         <p class="error"><strong>Error:</strong> {{ error }}</p>
     {% endif %}
 </form>
-
 <br>
 <a href="/pets">Go back to pet management</a>
 <br>
 <a href="/logout">Logout</a>
-
 </body>
-
-
 </html>

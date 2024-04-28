@@ -3,73 +3,102 @@
 </head>
 <body>
 <h1>Viewing Listings</h1>
-<form action="/post" method="POST">
+<form action="/searchListings" method="POST">
     Search for units from a specific apartment building<br>
 	<input type="text" name = "company" placeholder="company" maxlength="20" required/>
     <input type="text" name = "building" placeholder="building" maxlength="20" required/>
 	<input type="submit" value = Search />
 </form>
-
+{% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}</p>
+{% endif %}
 <style type="text/css">
-	table, th, td{
-		border: 1px solid black;
-	}
+	table, th, td{border: 1px solid black;}
 </style>
 
-Default listings:
-
-<table>
-	<th>View Unit</th>
-	<th>Rental ID</th>
-	<th>Company</th>
-	<th>Building</th>
-	<th>Unit Number</th>
-	<th>Monthly Rent</th>
-	<th>Sq Footage</th>
-	<th>Move In Date</th>
-	<th>Bed&Bath</th>
-	<th>Your Conflicting Pets?</th>
-
-
-{% for line in posts %}
+{% if mode == None %}
+	Buildings with units for rent:
+	<table>
+		<th>Company Name</th>
+		<th>Building Name</th>
+		<th>Year Built</th>
+		<th>Address</th>
+		<th>Available Units</th>
+	{% for line in posts %}
 	<tr>
-		<td>
-			<form action="/viewUnit" method="POST">
-				<input type="hidden" name="unitID" value="{{ line.UnitRentID }}" />
-				<input type="hidden" name="comp" value="{{ line.CompanyName }}" />
-				<input type="hidden" name="build" value="{{ line.BuildingName }}" />
-				<input type="submit" value="View" class="edit-button" />
-			</form>
-		</td>
-		<td>{{line.UnitRentID}}</td>
 		<td>{{line.CompanyName}}</td>
 		<td>{{line.BuildingName}}</td>
-		<td>{{line.unitNumber}}</td>
-		<td>{{line.MonthlyRent}}</td>
-		<td>{{line.squareFootage}}</td>
-		<td>{{line.AvailableDateForMoveIn}}</td>
-		<td>{{line.BedroomCount}}bed {{line.BathroomCount}}bath</td>
-		<td>
-        {% set conflicts = [] %}
-        {% set policy_list = line.PetPolicies.split(';') %}
-        {% set owned_pets_list = yeet.OwnedPets.split(';') if yeet else [] %}
-        {% for petsample in owned_pets_list %}
-            {% if petsample not in policy_list %}
-                        {% set _ = conflicts.append(petsample[0:-1]) %}
-			{% endif %}
-        {% endfor %}
-        {{ 'No Conflicts' if conflicts|length == 0 else 'Conflicts: ' ~ conflicts }}
-    </td>
+		<td>{{line.YearBuilt}}</td>
+		<td>{{line.AddrNum}} {{line.AddrStreet}}, {{line.AddrCity}}, {{line.AddrState}} {{line.AddrZipCode}}</td>
+		<td>{{line.Units}}</td>
 	</tr>
-{% endfor %}
-</table>
+	{% endfor %}
+	</table>
+	<br>
+{% endif %}
 
+{% if mode == 'Search' %}
+	<h4>Your Pets vs {{posts[0].CompanyName}} {{posts[0].BuildingName}}'s Pet Policy</h4>
+	<table>
+		<th>Pet Name</th>
+		<th>Pet Type</th>
+		<th>Pet Size</th>
+		<th>Allowed?</th>
+		<th>Registration</th>
+		<th>Monthly Fee</th>
+
+	{% for line in posts2 %}
+		<tr>
+			<td>{{line.PetName}}</td>
+			<td>{{line.PetType}}</td>
+			<td>{{line.PetSize}}</td>
+			{% if line.isAllowed == 1 %}
+				<td>Yes</td>
+				<td>{{line.RegistrationFee}}</td>
+				<td>{{line.MonthlyFee}}</td>
+			{% else %}
+				<td>No</td>
+			{% endif %}
+		</tr>
+	{% endfor %}
+	</table>
+	<br>
+	<h4>Available Units at {{posts[0].CompanyName}} {{posts[0].BuildingName}}: {{posts|length}}</h4>
+	<table>
+		<th>View Unit</th>
+		<th>Rental ID</th>
+		<th>Unit Number</th>
+		<th>Monthly Rent</th>
+		<th>Sq Footage</th>
+		<th>Move In Date</th>
+		<th>Bed&Bath</th>
+
+	{% for line in posts %}
+		<tr>
+			<td>
+				<form action="/viewUnit" method="POST">
+					<input type="hidden" name="unitID" value="{{ line.UnitRentID }}" />
+					<input type="hidden" name="comp" value="{{ line.CompanyName }}" />
+					<input type="hidden" name="build" value="{{ line.BuildingName }}" />
+					<input type="submit" value="View" class="edit-button" />
+				</form>
+			</td>
+			<td>{{line.UnitRentID}}</td>
+			<td>{{line.unitNumber}}</td>
+			<td>{{line.MonthlyRent}}</td>
+			<td>{{line.squareFootage}}</td>
+			<td>{{line.AvailableDateForMoveIn}}</td>
+			<td>{{line.BedroomCount}}bed {{line.BathroomCount}}bath</td>
+		</tr>
+	{% endfor %}
+	</table>
+	<br>
+	<a href="/view_listings">Go back to main listings</a>
+{% endif %}
 <br>
 <a href="/home">Go back to home page</a>
 <br>
 <a href="/logout">Logout</a>
 
 </body>
-
-
 </html>

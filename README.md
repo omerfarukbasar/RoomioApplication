@@ -7,6 +7,10 @@ A web program that simulates an apartment rental service. Utlizes Python, Flask,
 Designed as a project for CS-GY 6083
 
 Developer: Omer Basar
+# Progress As Of April 27
+- Implemented Search and Display units feature
+- Reorganized, cleaned, and commented code
+
 # Progress As Of April 26
 - Implemented Interests feature
 - Partial implementation of unit/building views

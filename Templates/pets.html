@@ -27,9 +27,7 @@ Register a new pet here:
 </form>
 
 <style type="text/css">
-	table, th, td{
-		border: 1px solid black;
-	}
+	table, th, td{border: 1px solid black;}
 </style>
 
 Here are your registered pets:
@@ -39,7 +37,7 @@ Here are your registered pets:
 	<th>Pet Type</th>
 	<th>Pet Size</th>
 
-{% for line in posts %}
+	{% for line in posts %}
 	<tr>
 		<td>{{line.PetName}}</td>
 		<td>{{line.PetType}}</td>
@@ -59,16 +57,12 @@ Here are your registered pets:
 			</form>
 		</td>
 	</tr>
-{% endfor %}
+	{% endfor %}
 </table>
-
 
 <br>
 <a href="/home">Go back to home page</a>
 <br>
 <a href="/logout">Logout</a>
-
 </body>
-
-
 </html>
