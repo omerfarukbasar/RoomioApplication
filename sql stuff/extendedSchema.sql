@@ -18,6 +18,23 @@ CREATE TABLE Comments (
 	PRIMARY KEY (username,UnitRentID,date)
 );
 
+-- View creation
+CREATE VIEW BedCounter AS
+SELECT
+au.UnitRentID,
+COUNT(r.UnitRentID) AS BedroomCount
+FROM ApartmentUnit au
+LEFT JOIN Rooms r ON r.UnitRentID = au.UnitRentID AND r.name LIKE 'bedroom%'
+GROUP BY au.UnitRentID;
+
+CREATE VIEW BathCounter AS
+SELECT
+au.UnitRentID,
+COUNT(r.UnitRentID) AS BathroomCount
+FROM ApartmentUnit au
+LEFT JOIN Rooms r ON r.UnitRentID = au.UnitRentID AND r.name LIKE 'bathroom%'
+GROUP BY au.UnitRentID;
+
 -- Sample data insertion for Comments table
 INSERT INTO Comments (username, UnitRentID, cdate, details, rating) VALUES ("aj25082", 1, '2024-04-30 14:23:45', 'Great location, but noisy neighbors.', 4);
 INSERT INTO Comments (username, UnitRentID, cdate, details, rating) VALUES ("jm19012", 2, '2024-04-30 09:15:00', 'Lovely view and well-maintained.', 5);
