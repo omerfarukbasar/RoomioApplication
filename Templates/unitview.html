@@ -6,6 +6,10 @@
 
 <style type="text/css">
 	table, th, td{border: 1px solid black;}
+	td {
+        word-wrap: break-word;
+        max-width: 400px; /* Sets a maximum width for each cell
+    }
 </style>
 
 <table>
@@ -121,16 +125,18 @@
 {% if error %}
         <p class="error"><strong>Error:</strong> {{ error }}</p>
 {% endif %}
-
+{% if posts4 %}
 <form action="/deleteInterest" method="POST">
 	<table>
 		<th>Username</th>
+		<th>Email</th>
 		<th>Roommate Count</th>
 		<th>Move In Date</th>
 
 		{% for line in posts4 %}
 		<tr>
 			<td>{{line.username}}</td>
+			<td>{{line.email}}</td>
 			<td>{{line.RoommateCnt}}</td>
 			<td>{{line.MoveInDate}}</td>
 			{% if line.username == username %}
@@ -141,6 +147,59 @@
 		{% endfor %}
 	</table>
 </form>
+{% else %}
+Nobody has posted interest. Maybe you should be the first?
+<br>
+{% endif %}
+<br>
+<h3>Comments on this Unit</h3>
+<form action="/makeComment" id="yeet" method="POST">
+    Leave a rating and comment<br>
+	<br>
+	<input type="hidden" name="unit1" value="{{ posts.UnitRentID }}" />
+	<select name="details" id="details" required/>
+		<option disabled selected value> -- select an option -- </option>
+    	<option value=1>1 Star</option>
+		<option value=2>2 Stars</option>
+		<option value=2>3 Stars</option>
+		<option value=2>4 Stars</option>
+		<option value=2>5 Stars</option>
+  	</select>
+	<br><br>
+	<textarea rows="4" cols="50" name="comment" maxlength="300" required></textarea>
+	<br><br>
+
+	<input type="submit" value = Submit />
+</form>
+{% if error %}
+        <p class="error"><strong>Error:</strong> {{ error }}</p>
+{% endif %}
+{% if posts6 %}
+<form action="/deleteComment" method="POST">
+	<table>
+		<th>Timestamp</th>
+		<th>User</th>
+		<th>Rating</th>
+		<th>Comment</th>
+
+		{% for line in posts6 %}
+		<tr>
+			<td>{{line.cdate}}</td>
+			<td>{{line.username}}</td>
+			<td>{{line.rating}}</td>
+			<td>{{line.details}}</td>
+			{% if line.username == username %}
+				<input type="hidden" name="unit1" value="{{ posts.UnitRentID }}" />
+				<input type="hidden" name="timestamp" value="{{ line.cdate }}" />
+				<td><input type="submit" value = Delete /><td>
+			{% endif %}
+		</tr>
+		{% endfor %}
+	</table>
+</form>
+{% else %}
+No comments posted. Be the first to leave a comment<br>
+{% endif %}
 <br>
 
 {% if fav == None %}

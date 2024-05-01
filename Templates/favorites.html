@@ -8,6 +8,7 @@
 	table, th, td{border: 1px solid black;}
 </style>
 
+{% if posts %}
 <table>
 	<th>View Unit</th>
 	<th>Rental ID</th>
@@ -32,7 +33,10 @@
 		</tr>
 	{% endfor %}
 </table>
-<br>
+{% else %}
+You have no favorites. Look for ones you like in the search page.
+{% endif %}
+<br><br>
 <a href="/home">Go back to home page</a>
 <br>
 <a href="/logout">Logout</a>

@@ -30,8 +30,8 @@ Register a new pet here:
 	table, th, td{border: 1px solid black;}
 </style>
 
+{% if posts %}
 Here are your registered pets:
-
 <table>
 	<th>Pet Name</th>
 	<th>Pet Type</th>
@@ -59,7 +59,10 @@ Here are your registered pets:
 	</tr>
 	{% endfor %}
 </table>
-
+{% else %}
+You have no registered pets, maybe you should add one?
+{% endif %}
+<br>
 <br>
 <a href="/home">Go back to home page</a>
 <br>

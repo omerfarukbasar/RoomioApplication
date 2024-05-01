@@ -39,6 +39,7 @@
 
 {% if mode == 'Search' %}
 	<h4>Your Pets vs {{posts[0].CompanyName}} {{posts[0].BuildingName}}'s Pet Policy</h4>
+	{% if posts2 %}
 	<table>
 		<th>Pet Name</th>
 		<th>Pet Type</th>
@@ -62,6 +63,9 @@
 		</tr>
 	{% endfor %}
 	</table>
+	{% else %}
+	You have no pets to compare. <br>
+	{% endif %}
 	<br>
 	<h4>Available Units at {{posts[0].CompanyName}} {{posts[0].BuildingName}}: {{posts|length}}</h4>
 	<table>

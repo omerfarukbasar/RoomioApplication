@@ -1,4 +1,6 @@
 # Import Flask Library
+import datetime
+
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 import pymysql.cursors
 
@@ -83,8 +85,8 @@ def registerAuth():
     else:
         # Generate hash and insert new user into DB
         passwd = generate_password_hash(passwd)
-        ins = 'INSERT INTO Users VALUES(%s, %s, %s, %s, %s, %s, %s, %s)'
-        cursor.execute(ins, (username, first_name, last_name, DOB, gender, Phone, email, passwd))
+        ins = 'INSERT INTO Users (username, first_name, last_name, DOB, gender, email, Phone, passwd) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)'
+        cursor.execute(ins, (username, first_name, last_name, DOB, gender, email, Phone, passwd))
         conn.commit()
         cursor.close()
         return render_template('landing.html')
@@ -202,15 +204,20 @@ def viewUnit():
     cursor.execute(query, (comp,build))
     bamen = cursor.fetchall()
 
+    # Building pet policy
+    query = 'SELECT PetType,PetSize,isAllowed,RegistrationFee,MonthlyFee FROM PetPolicy WHERE CompanyName=%s AND BuildingName=%s ORDER BY PetType,PetSize'
+    cursor.execute(query, (comp, build))
+    policy = cursor.fetchall()
+
     # Interest in unit
-    query = 'SELECT username,RoommateCnt,MoveInDate FROM Interests WHERE UnitRentID = %s ORDER BY MoveInDate'
+    query = 'SELECT username,email,RoommateCnt,MoveInDate FROM Interests NATURAL JOIN Users WHERE UnitRentID = %s ORDER BY MoveInDate'
     cursor.execute(query, (unit))
     inter = cursor.fetchall()
 
-    # Building pet policy
-    query = 'SELECT PetType,PetSize,isAllowed,RegistrationFee,MonthlyFee FROM PetPolicy WHERE CompanyName=%s AND BuildingName=%s ORDER BY PetType,PetSize'
-    cursor.execute(query, (comp,build))
-    policy = cursor.fetchall()
+    # Comments for unit
+    query = 'SELECT username,cdate,details,rating FROM Comments WHERE UnitRentID = %s ORDER BY cdate DESC'
+    cursor.execute(query, (unit))
+    coms = cursor.fetchall()
 
     # Check for favorite
     query = 'SELECT * From Favorites WHERE UnitRentID=%s AND username = %s'
@@ -218,7 +225,7 @@ def viewUnit():
     fav = cursor.fetchone()
 
     cursor.close()
-    return render_template('unitview.html', username=user, posts=data, posts1=rooms,posts2=uamen,posts3=bamen,posts4=inter, posts5=policy, fav=fav, origin=origin, error = error)
+    return render_template('unitview.html', username=user, posts=data, posts1=rooms,posts2=uamen,posts3=bamen,posts4=inter, posts5=policy, posts6=coms, fav=fav, origin=origin, error = error)
 @app.route('/makeInterest', methods=['GET', 'POST'])
 def makeInterest():
     # Get data
@@ -239,7 +246,7 @@ def makeInterest():
         cursor.close()
         return redirect(url_for('viewUnit'))
     else:
-        ins = 'INSERT INTO Interests VALUES(%s, %s, %s, %s)'
+        ins = 'INSERT INTO Interests (username, UnitRentID, RoommateCnt, MoveInDate) VALUES(%s, %s, %s, %s)'
         cursor.execute(ins, (user, unit, roommates, move))
         conn.commit()
         cursor.close()
@@ -261,6 +268,44 @@ def deleteInterest():
     session['error'] = None
     return redirect(url_for('viewUnit'))
 
+# Adds the user's comment to the unit for others to see
+@app.route('/makeComment', methods=['GET', 'POST'])
+def makeComment():
+    # Get data
+    username = session['username']
+    unit = request.form['unit1']
+    rating = request.form['details']
+    comment = request.form['comment']
+    # Clean the data to prevent overflow
+    comment= comment.replace('\n',"").strip()
+    timestamp = datetime.datetime.now()
+
+    # Add comment to unit
+    cursor = conn.cursor()
+    query = "INSERT INTO Comments (username, UnitRentID, cdate, details, rating) VALUES (%s, %s, %s, %s, %s)"
+    cursor.execute(query, (username, unit, timestamp, comment, rating))
+    conn.commit()
+    cursor.close()
+    session['error'] = None
+    return redirect(url_for('viewUnit'))
+
+# Deletes the user's comment on a unit
+@app.route('/deleteComment', methods=['GET', 'POST'])
+def deleteComment():
+    # Get data
+    username = session['username']
+    unit = request.form['unit1']
+    time = request.form['timestamp']
+    # Delete the specific entry
+    cursor = conn.cursor()
+    query = 'DELETE FROM Comments WHERE username = %s AND UnitRentID = %s AND cdate=%s'
+    cursor.execute(query, (username, unit,time))
+    conn.commit()
+    cursor.close()
+    session['error'] = None
+    return redirect(url_for('viewUnit'))
+
+# Adds the unit to the user's favorites
 @app.route('/addFavorite', methods=['GET', 'POST'])
 def addFavorite():
     # Get data
@@ -276,6 +321,7 @@ def addFavorite():
     session['error'] = None
     return redirect(url_for('viewUnit'))
 
+# Removes the unit from the user's favorites
 @app.route('/deleteFavorite', methods=['GET', 'POST'])
 def deleteFavorite():
     # Get data
@@ -290,6 +336,7 @@ def deleteFavorite():
     session['error'] = None
     return redirect(url_for('viewUnit'))
 
+# Displays the user's bookmarked units on the page
 @app.route('/viewFavorites',methods=['GET', 'POST'])
 def viewFavorites():
     # Get data
@@ -297,8 +344,8 @@ def viewFavorites():
 
     # Get list of user's favorites
     cursor = conn.cursor()
-    query = "SELECT UnitRentID, CompanyName, BuildingName, unitNumber FROM Favorites NATURAL JOIN ApartmentUnit"
-    cursor.execute(query)
+    query = "SELECT UnitRentID, CompanyName, BuildingName, unitNumber FROM Favorites NATURAL JOIN ApartmentUnit WHERE username=%s"
+    cursor.execute(query,(user))
     data = cursor.fetchall()
     cursor.close()
     return render_template('favorites.html', username=user, posts=data)
@@ -337,7 +384,7 @@ def addPet():
         cursor.close()
         return redirect(url_for('pets'))
     else:
-        ins = 'INSERT INTO Pets VALUES(%s, %s, %s, %s)'
+        ins = 'INSERT INTO Pets (PetName, PetType, PetSize, username) VALUES(%s, %s, %s, %s)'
         cursor.execute(ins, (petName,petType,petSize,user))
         conn.commit()
         cursor.close()
@@ -440,8 +487,8 @@ def deletePet():
 def logout():
     session.pop('username')
     session.pop('error')
-    session.pop('petName')
-    session.pop('petType')
+    session.pop('PetName')
+    session.pop('PetType')
     session.pop('build')
     session.pop('comp')
     session.pop('unitID')
