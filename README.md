@@ -39,6 +39,15 @@ Feature List locations in init1.py:
   - makeComment() at line 273 to 290
   - deleteComment() at line 294 to 306
 
+# Screenshots
+![Pet Management System](Screenshots/1.png)
+![Main Listings Page](Screenshots/2.png)
+![Search Listings Page](Screenshots/3.png)
+![Unit Info 1](Screenshots/4.png)
+![Unit Info 2](Screenshots/5.png)
+![Comments and Interest Section](Screenshots/6.png)
+
+
 # Progress As Of April 30
 - Implemented Comments and Favorite features
 
